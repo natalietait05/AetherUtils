@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
+import com.aetheris.aetherutils.unbreakable.Unbreakable;
 
 public class AetherUtils implements ModInitializer {
 
@@ -22,7 +23,7 @@ public class AetherUtils implements ModInitializer {
 	public void onInitialize() {
 
 		LOGGER.info("AetherUtils iniciado");
-
+		Unbreakable.initialize();
 		PlayerBlockBreakEvents.BEFORE.register(
 				(level, player, blockPos, blockState, blockEntity) -> {
 

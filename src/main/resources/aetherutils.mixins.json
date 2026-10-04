@@ -3,7 +3,10 @@
 	"package": "com.aetheris.aetherutils.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"UnbreakableItemStackMixin",
+		"UnbreakableItemUseMixin",
+		"UnbreakableMiningMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
