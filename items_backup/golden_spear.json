@@ -1,0 +1,79 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+		"type": "minecraft:range_dispatch",
+		"property": "minecraft:damage",
+		"entries": [
+			{
+				"threshold": 0.85,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged0"
+				}
+			},
+			{
+				"threshold": 0.9,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged1"
+				}
+			},
+			{
+				"threshold": 0.95,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged2"
+				}
+			}
+		],
+		"fallback": {
+			"type": "minecraft:model",
+			"model": "item/golden_spear"
+		}
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed",
+          "on_shelf"
+        ]
+      }
+    ],
+    "fallback": {
+		"type": "minecraft:range_dispatch",
+		"property": "minecraft:damage",
+		"entries": [
+			{
+				"threshold": 0.85,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged0_in_hand"
+				}
+			},
+			{
+				"threshold": 0.9,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged1_in_hand"
+				}
+			},
+			{
+				"threshold": 0.95,
+				"model": {
+					"type": "minecraft:model",
+					"model": "item/golden_spear_damaged2_in_hand"
+				}
+			}
+		],
+		"fallback": {
+			"type": "minecraft:model",
+			"model": "item/golden_spear_in_hand"
+		}
+    },
+    "property": "minecraft:display_context"
+  },
+  "swap_animation_scale": 1.9
+}

@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.function.Consumer;
 
@@ -50,6 +51,17 @@ public abstract class UnbreakableItemStackMixin {
 		 * pero evita que vanilla lo destruya.
 		 */
 		stack.setDamageValue(stack.getMaxDamage());
+
+		player.level().playSound(
+				null,
+				player.getX(),
+				player.getY(),
+				player.getZ(),
+				SoundEvents.ITEM_BREAK,
+				player.getSoundSource(),
+				1.0F,
+				1.0F
+		);
 
 		ci.cancel();
 	}

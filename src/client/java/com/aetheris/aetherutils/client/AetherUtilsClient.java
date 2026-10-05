@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.aetheris.aetherutils.zoom.ZoomClient;
 
 public class AetherUtilsClient implements ClientModInitializer {
 
@@ -33,6 +34,7 @@ public class AetherUtilsClient implements ClientModInitializer {
 
 		TreecapitatorClient.initialize();
 		LightLevelsClient.initialize();
+		ZoomClient.initialize();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
