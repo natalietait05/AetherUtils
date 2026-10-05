@@ -1,11 +1,10 @@
 package com.aetheris.aetherutils.lightlevels;
 
 import com.aetheris.aetherutils.client.AetherUtilsClient;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
-import com.mojang.blaze3d.platform.InputConstants;
 
 public final class LightLevelsClient {
 
@@ -22,12 +21,11 @@ public final class LightLevelsClient {
 
     public static void initialize() {
 
-        TOGGLE_KEY = KeyMappingHelper.registerKeyMapping(
-                new KeyMapping(
-                        "key.aetherutils.light_levels",
-                        InputConstants.KEY_L,
-                        AetherUtilsClient.CATEGORY
-                )
+        TOGGLE_KEY = new KeyMapping(
+                "key.aetherutils.light_levels",
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_L,
+                AetherUtilsClient.CATEGORY
         );
 
         LightLevelsConfig.load();
@@ -53,21 +51,26 @@ public final class LightLevelsClient {
                 String message;
 
                 switch (state) {
+
                     case BLOCK_LIGHT ->
-                            message = "Light Levels: BLOCK LIGHT";
+                            message =
+                                    "Light Levels: BLOCK LIGHT";
 
                     case SKY_LIGHT ->
-                            message = "Light Levels: SKY LIGHT";
+                            message =
+                                    "Light Levels: SKY LIGHT";
 
                     default ->
-                            message = "Light Levels: OFF";
+                            message =
+                                    "Light Levels: OFF";
                 }
 
                 client.player.sendSystemMessage(
                         Component.literal(message)
                 );
 
-                if (client.level != null && state != OFF) {
+                if (client.level != null
+                        && state != OFF) {
 
                     LightLevelsRenderer.update(
                             client.level,

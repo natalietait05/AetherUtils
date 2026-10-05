@@ -3,13 +3,13 @@ package com.aetheris.aetherutils.client;
 import com.aetheris.aetherutils.AetherUtils;
 import com.aetheris.aetherutils.lightlevels.LightLevelsClient;
 import com.aetheris.aetherutils.treecapitator.TreecapitatorClient;
+import com.aetheris.aetherutils.zoom.ZoomClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.aetheris.aetherutils.zoom.ZoomClient;
 
 public class AetherUtilsClient implements ClientModInitializer {
 
@@ -24,6 +24,10 @@ public class AetherUtilsClient implements ClientModInitializer {
 				AetherUtils.id("controls")
 		);
 
+		/*
+		 * Este es el único keybind que queremos que aparezca
+		 * en Options -> Controls.
+		 */
 		CONFIG_KEY = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
 						"key.aetherutils.config",
@@ -32,9 +36,16 @@ public class AetherUtilsClient implements ClientModInitializer {
 				)
 		);
 
+		/*
+		 * Los keybinds internos NO se registran mediante
+		 * KeyMappingHelper, por lo que no aparecerán en
+		 * Options -> Controls.
+		 */
 		TreecapitatorClient.initialize();
 		LightLevelsClient.initialize();
 		ZoomClient.initialize();
+
+		AetherUtilsKeybindConfig.load();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
