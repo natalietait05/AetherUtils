@@ -1,16 +1,17 @@
-package com.aetheris.aetherutils.unbreakable;
+package com.aetheris.aetherutils.treecapitator;
 
+import com.aetheris.aetherutils.client.AetherUtilsKeybindScreen;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class UnbreakableConfigScreen extends Screen {
+public class TreecapitatorConfigScreen extends Screen {
 
     private final Screen parent;
 
-    public UnbreakableConfigScreen(Screen parent) {
-        super(Component.literal("Unbreakable"));
+    public TreecapitatorConfigScreen(Screen parent) {
+        super(Component.literal("Treecapitator"));
         this.parent = parent;
     }
 
@@ -18,22 +19,26 @@ public class UnbreakableConfigScreen extends Screen {
     protected void init() {
 
         int centerX = this.width / 2;
+        int startY = this.height / 2 - 40;
 
         this.addRenderableWidget(
                 Button.builder(
-                        getToggleText(),
-                        button -> {
-                            UnbreakableConfig.setEnabled(
-                                    !UnbreakableConfig.isEnabled()
-                            );
-
-                            UnbreakableConfig.save();
-
-                            button.setMessage(getToggleText());
-                        }
+                        Component.literal(
+                                "Key: "
+                                        + TreecapitatorClient.TOGGLE_KEY
+                                        .getTranslatedKeyMessage()
+                                        .getString()
+                        ),
+                        button -> this.minecraft.gui.setScreen(
+                                new AetherUtilsKeybindScreen(
+                                        this,
+                                        Component.literal("Treecapitator"),
+                                        TreecapitatorClient.TOGGLE_KEY
+                                )
+                        )
                 ).bounds(
                         centerX - 100,
-                        this.height / 2 - 10,
+                        startY,
                         200,
                         20
                 ).build()
@@ -45,17 +50,10 @@ public class UnbreakableConfigScreen extends Screen {
                         button -> onClose()
                 ).bounds(
                         centerX - 100,
-                        this.height / 2 + 30,
+                        startY + 40,
                         200,
                         20
                 ).build()
-        );
-    }
-
-    private Component getToggleText() {
-        return Component.literal(
-                "Unbreakable: "
-                        + (UnbreakableConfig.isEnabled() ? "ON" : "OFF")
         );
     }
 
@@ -84,7 +82,6 @@ public class UnbreakableConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-
         this.minecraft.gui.setScreen(parent);
     }
 }

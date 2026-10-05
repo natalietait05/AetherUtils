@@ -19,8 +19,7 @@
 			"com.aetheris.aetherutils.AetherUtils"
 		],
 		"client": [
-			"com.aetheris.aetherutils.treecapitator.TreecapitatorClient",
-			"com.aetheris.aetherutils.lightlevels.LightLevelsClient"
+			"com.aetheris.aetherutils.client.AetherUtilsClient"
 		]
 	},
 	"mixins": [

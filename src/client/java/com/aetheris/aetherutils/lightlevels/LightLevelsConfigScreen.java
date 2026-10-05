@@ -1,5 +1,6 @@
 package com.aetheris.aetherutils.lightlevels;
 
+import com.aetheris.aetherutils.client.AetherUtilsKeybindScreen;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
@@ -8,13 +9,12 @@ import net.minecraft.network.chat.Component;
 
 public class LightLevelsConfigScreen extends Screen {
 
-    private static final Component TITLE = Component.literal("LightLevels");
-    private static final int SLIDER_WIDTH = 300;
-    private static final int SLIDER_HEIGHT = 20;
     private final Screen parent;
 
+    private RadiusSlider radiusSlider;
+
     public LightLevelsConfigScreen(Screen parent) {
-        super(TITLE);
+        super(Component.literal("LightLevels"));
         this.parent = parent;
     }
 
@@ -22,78 +22,139 @@ public class LightLevelsConfigScreen extends Screen {
     protected void init() {
 
         int centerX = this.width / 2;
-        int sliderY = this.height / 2 - 20;
+        int startY = this.height / 2 - 50;
 
-        RadiusSlider radiusSlider = new RadiusSlider(centerX - SLIDER_WIDTH / 2, sliderY, SLIDER_WIDTH, SLIDER_HEIGHT);
-
-        this.addRenderableWidget(radiusSlider);
-
-        this.addRenderableWidget(Button.builder(Component.literal("Done"),
-                                button -> {
-                                    LightLevelsConfig.save();
-                                    if (this.minecraft != null) {
-                                        this.minecraft.gui.setScreen(parent);
-                                    }
-                                }
+        this.addRenderableWidget(
+                Button.builder(
+                        Component.literal(
+                                "Key: "
+                                        + LightLevelsClient.TOGGLE_KEY
+                                        .getTranslatedKeyMessage()
+                                        .getString()
+                        ),
+                        button -> this.minecraft.gui.setScreen(
+                                new AetherUtilsKeybindScreen(
+                                        this,
+                                        Component.literal("LightLevels"),
+                                        LightLevelsClient.TOGGLE_KEY
+                                )
                         )
-                        .bounds(centerX - 100, sliderY + 45, 200, 20)
-                        .build()
+                ).bounds(
+                        centerX - 100,
+                        startY,
+                        200,
+                        20
+                ).build()
+        );
+
+        radiusSlider = this.addRenderableWidget(
+                new RadiusSlider(
+                        centerX - 100,
+                        startY + 30,
+                        200,
+                        20,
+                        LightLevelsConfig.getRadius()
+                )
+        );
+
+        this.addRenderableWidget(
+                Button.builder(
+                        Component.literal("Done"),
+                        button -> onClose()
+                ).bounds(
+                        centerX - 100,
+                        startY + 70,
+                        200,
+                        20
+                ).build()
+        );
+    }
+
+    @Override
+    public void extractRenderState(
+            GuiGraphicsExtractor graphics,
+            int mouseX,
+            int mouseY,
+            float delta
+    ) {
+        super.extractRenderState(
+                graphics,
+                mouseX,
+                mouseY,
+                delta
+        );
+
+        graphics.centeredText(
+                this.font,
+                this.title,
+                this.width / 2,
+                40,
+                0xFFFFFFFF
         );
     }
 
     @Override
     public void onClose() {
-        LightLevelsConfig.save();
         this.minecraft.gui.setScreen(parent);
-    }
-
-    @Override
-    public void extractRenderState(
-            GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-
-        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-
-        graphics.text(this.font, Component.literal("Light display distance"),
-                this.width / 2 - 100,
-                this.height / 2 - 55,
-                0xFFFFFFFF
-        );
-
-        graphics.text(this.font, Component.literal("Higher values consume more resources"),
-                this.width / 2 - 100,
-                this.height / 2 + 35,
-                0xFFAAAAAA
-        );
     }
 
     private static class RadiusSlider extends AbstractSliderButton {
 
-        private RadiusSlider(int x, int y, int width, int height) {
+        private static final int MIN_RADIUS = LightLevelsRenderer.MIN_RADIUS;
+        private static final int MAX_RADIUS = LightLevelsRenderer.MAX_RADIUS;
 
-            super(x, y, width, height, Component.empty(), getInitialValue());
+        public RadiusSlider(
+                int x,
+                int y,
+                int width,
+                int height,
+                int radius
+        ) {
+            super(
+                    x,
+                    y,
+                    width,
+                    height,
+                    Component.empty(),
+                    radiusToValue(radius)
+            );
+
             updateMessage();
         }
 
-        private static double getInitialValue() {
-            int radius = LightLevelsConfig.getRadius();
+        private static double radiusToValue(int radius) {
 
-            return (radius - LightLevelsRenderer.MIN_RADIUS) / (double) (LightLevelsRenderer.MAX_RADIUS - LightLevelsRenderer.MIN_RADIUS);
+            return (double) (radius - MIN_RADIUS)
+                    / (MAX_RADIUS - MIN_RADIUS);
         }
 
-        private int getRadius() {
+        private static int valueToRadius(double value) {
 
-            return LightLevelsRenderer.MIN_RADIUS + (int) Math.round(value * (LightLevelsRenderer.MAX_RADIUS - LightLevelsRenderer.MIN_RADIUS)
+            return MIN_RADIUS
+                    + (int) Math.round(
+                    value * (MAX_RADIUS - MIN_RADIUS)
             );
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.literal("Distance: " + getRadius() + " blocks"));
+
+            setMessage(
+                    Component.literal(
+                            "Radius: " + valueToRadius(this.value)
+                    )
+            );
         }
 
         @Override
         protected void applyValue() {
-            LightLevelsConfig.setRadius(getRadius());
+
+            int radius = valueToRadius(this.value);
+
+            LightLevelsConfig.setRadius(radius);
+            LightLevelsConfig.save();
+
+            updateMessage();
         }
     }
 }
