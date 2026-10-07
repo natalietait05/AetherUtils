@@ -1,15 +1,16 @@
 package com.aetheris.aetherutils.client;
 
 import com.aetheris.aetherutils.AetherUtils;
+import com.aetheris.aetherutils.inventorysorter.InventorySorterClient;
 import com.aetheris.aetherutils.lightlevels.LightLevelsClient;
 import com.aetheris.aetherutils.treecapitator.TreecapitatorClient;
 import com.aetheris.aetherutils.zoom.ZoomClient;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
-import com.mojang.blaze3d.platform.InputConstants;
 
 public class AetherUtilsClient implements ClientModInitializer {
 
@@ -20,14 +21,8 @@ public class AetherUtilsClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 
-		CATEGORY = KeyMapping.Category.register(
-				AetherUtils.id("controls")
-		);
+		CATEGORY = KeyMapping.Category.register(AetherUtils.id("controls"));
 
-		/*
-		 * Este es el único keybind que queremos que aparezca
-		 * en Options -> Controls.
-		 */
 		CONFIG_KEY = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
 						"key.aetherutils.config",
@@ -36,14 +31,10 @@ public class AetherUtilsClient implements ClientModInitializer {
 				)
 		);
 
-		/*
-		 * Los keybinds internos NO se registran mediante
-		 * KeyMappingHelper, por lo que no aparecerán en
-		 * Options -> Controls.
-		 */
 		TreecapitatorClient.initialize();
 		LightLevelsClient.initialize();
 		ZoomClient.initialize();
+		InventorySorterClient.initialize();
 
 		AetherUtilsKeybindConfig.load();
 
@@ -53,9 +44,7 @@ public class AetherUtilsClient implements ClientModInitializer {
 
 				Screen parent = client.gui.screen();
 
-				client.gui.setScreen(
-						new AetherUtilsConfigScreen(parent)
-				);
+				client.gui.setScreen(new AetherUtilsConfigScreen(parent));
 			}
 		});
 	}

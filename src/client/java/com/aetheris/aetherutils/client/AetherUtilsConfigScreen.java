@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 public class AetherUtilsConfigScreen extends Screen {
 
@@ -25,7 +26,6 @@ public class AetherUtilsConfigScreen extends Screen {
     private Button zoomKeyButton;
 
     private Button unbreakableButton;
-    private Button smoothZoomButton;
 
     private KeyMapping waitingForKey;
 
@@ -52,18 +52,20 @@ public class AetherUtilsConfigScreen extends Screen {
 
         int startY = 65;
 
-        this.addRenderableWidget(
-                Button.builder(
-                        Component.literal("Treecapitator"),
-                        button -> {
-                        }
-                ).bounds(
-                        leftX,
-                        startY,
-                        buttonWidth,
-                        20
-                ).build()
-        );
+        Button treecapitatorLabel =
+            this.addRenderableWidget(
+                    Button.builder(
+                            Component.literal("Treecapitator"),
+                            button -> {
+                            }
+                    ).bounds(
+                            leftX,
+                            startY,
+                            buttonWidth,
+                            20
+                    ).build()
+            );
+        treecapitatorLabel.active = false;
 
         treecapitatorKeyButton =
                 this.addRenderableWidget(
@@ -84,18 +86,20 @@ public class AetherUtilsConfigScreen extends Screen {
                         ).build()
                 );
 
-        this.addRenderableWidget(
-                Button.builder(
-                        Component.literal("Light Levels"),
-                        button -> {
-                        }
-                ).bounds(
-                        leftX,
-                        startY + 30,
-                        buttonWidth,
-                        20
-                ).build()
-        );
+        Button lightLevelsLabel =
+            this.addRenderableWidget(
+                    Button.builder(
+                            Component.literal("Light Levels"),
+                            button -> {
+                            }
+                    ).bounds(
+                            leftX,
+                            startY + 30,
+                            buttonWidth,
+                            20
+                    ).build()
+            );
+        lightLevelsLabel.active = false;
 
         lightLevelsKeyButton =
                 this.addRenderableWidget(
@@ -126,18 +130,20 @@ public class AetherUtilsConfigScreen extends Screen {
                 )
         );
 
-        this.addRenderableWidget(
-                Button.builder(
-                        Component.literal("Zoom"),
-                        button -> {
-                        }
-                ).bounds(
-                        leftX,
-                        startY + 90,
-                        buttonWidth,
-                        20
-                ).build()
-        );
+        Button zoomLabel =
+            this.addRenderableWidget(
+                    Button.builder(
+                            Component.literal("Zoom"),
+                            button -> {
+                            }
+                    ).bounds(
+                            leftX,
+                            startY + 90,
+                            buttonWidth,
+                            20
+                    ).build()
+            );
+        zoomLabel.active = false;
 
         zoomKeyButton =
                 this.addRenderableWidget(
@@ -168,30 +174,6 @@ public class AetherUtilsConfigScreen extends Screen {
                 )
         );
 
-        smoothZoomButton =
-                this.addRenderableWidget(
-                        Button.builder(
-                                getSmoothZoomText(),
-                                button -> {
-
-                                    ZoomConfig.setSmooth(
-                                            !ZoomConfig.isSmooth()
-                                    );
-
-                                    ZoomConfig.save();
-
-                                    button.setMessage(
-                                            getSmoothZoomText()
-                                    );
-                                }
-                        ).bounds(
-                                leftX,
-                                startY + 150,
-                                buttonWidth,
-                                20
-                        ).build()
-                );
-
         unbreakableButton =
                 this.addRenderableWidget(
                         Button.builder(
@@ -209,7 +191,7 @@ public class AetherUtilsConfigScreen extends Screen {
                                     );
                                 }
                         ).bounds(
-                                rightX,
+                                centerX - 70,
                                 startY + 150,
                                 buttonWidth,
                                 20
@@ -229,21 +211,14 @@ public class AetherUtilsConfigScreen extends Screen {
         );
     }
 
-    private void startKeySelection(
-            KeyMapping keyMapping,
-            Button button
-    ) {
+    private void startKeySelection(KeyMapping keyMapping, Button button) {
 
         waitingForKey = keyMapping;
 
-        button.setMessage(
-                Component.literal("Press a key...")
-        );
+        button.setMessage(Component.literal("Press a key..."));
     }
 
-    private Component getKeyText(
-            KeyMapping keyMapping
-    ) {
+    private Component getKeyText(KeyMapping keyMapping) {
 
         if (keyMapping == null) {
             return Component.literal("Key: NONE");
@@ -257,33 +232,14 @@ public class AetherUtilsConfigScreen extends Screen {
         );
     }
 
-    private Component getSmoothZoomText() {
-
-        return Component.literal(
-                "Smooth Zoom: "
-                        + (
-                        ZoomConfig.isSmooth()
-                                ? "ON"
-                                : "OFF"
-                )
-        );
-    }
-
     private Component getUnbreakableText() {
 
-        return Component.literal(
-                "Unbreakable: "
-                        + (
-                        UnbreakableConfig.isEnabled()
-                                ? "ON"
-                                : "OFF"
-                )
-        );
+        return Component.literal("Unbreakable: " + (UnbreakableConfig.isEnabled() ? "ON" : "OFF"));
     }
 
     @Override
     public boolean keyPressed(
-            KeyEvent event
+            @NonNull KeyEvent event
     ) {
 
         if (waitingForKey != null) {
@@ -292,68 +248,34 @@ public class AetherUtilsConfigScreen extends Screen {
 
                 waitingForKey = null;
 
-                treecapitatorKeyButton.setMessage(
-                        getKeyText(
-                                TreecapitatorClient.TOGGLE_KEY
-                        )
-                );
+                treecapitatorKeyButton.setMessage(getKeyText(TreecapitatorClient.TOGGLE_KEY));
 
-                lightLevelsKeyButton.setMessage(
-                        getKeyText(
-                                LightLevelsClient.TOGGLE_KEY
-                        )
-                );
+                lightLevelsKeyButton.setMessage(getKeyText(LightLevelsClient.TOGGLE_KEY));
 
-                zoomKeyButton.setMessage(
-                        getKeyText(
-                                ZoomClient.ZOOM_KEY
-                        )
-                );
+                zoomKeyButton.setMessage(getKeyText(ZoomClient.ZOOM_KEY));
 
                 return true;
             }
 
-            InputConstants.Key key =
-                    InputConstants.getKey(event);
+            InputConstants.Key key = InputConstants.getKey(event);
 
-            if (waitingForKey
-                    == TreecapitatorClient.TOGGLE_KEY) {
+            if (waitingForKey == TreecapitatorClient.TOGGLE_KEY) {
 
-                AetherUtilsKeybindConfig.setTreecapitatorKey(
-                        key
-                );
+                AetherUtilsKeybindConfig.setTreecapitatorKey(key);
 
-                treecapitatorKeyButton.setMessage(
-                        getKeyText(
-                                TreecapitatorClient.TOGGLE_KEY
-                        )
-                );
+                treecapitatorKeyButton.setMessage(getKeyText(TreecapitatorClient.TOGGLE_KEY));
 
-            } else if (waitingForKey
-                    == LightLevelsClient.TOGGLE_KEY) {
+            } else if (waitingForKey == LightLevelsClient.TOGGLE_KEY) {
 
-                AetherUtilsKeybindConfig.setLightLevelsKey(
-                        key
-                );
+                AetherUtilsKeybindConfig.setLightLevelsKey(key);
 
-                lightLevelsKeyButton.setMessage(
-                        getKeyText(
-                                LightLevelsClient.TOGGLE_KEY
-                        )
-                );
+                lightLevelsKeyButton.setMessage(getKeyText(LightLevelsClient.TOGGLE_KEY));
 
-            } else if (waitingForKey
-                    == ZoomClient.ZOOM_KEY) {
+            } else if (waitingForKey == ZoomClient.ZOOM_KEY) {
 
-                AetherUtilsKeybindConfig.setZoomKey(
-                        key
-                );
+                AetherUtilsKeybindConfig.setZoomKey(key);
 
-                zoomKeyButton.setMessage(
-                        getKeyText(
-                                ZoomClient.ZOOM_KEY
-                        )
-                );
+                zoomKeyButton.setMessage(getKeyText(ZoomClient.ZOOM_KEY));
             }
 
             AetherUtilsKeybindConfig.save();
@@ -368,7 +290,7 @@ public class AetherUtilsConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(
-            GuiGraphicsExtractor graphics,
+            @NonNull GuiGraphicsExtractor graphics,
             int mouseX,
             int mouseY,
             float delta
@@ -393,20 +315,15 @@ public class AetherUtilsConfigScreen extends Screen {
     @Override
     public void onClose() {
 
-        if (this.minecraft != null) {
-
-            this.minecraft.gui.setScreen(parent);
-        }
+        this.minecraft.gui.setScreen(parent);
     }
 
     private static class RadiusSlider
             extends AbstractSliderButton {
 
-        private static final int MIN_RADIUS =
-                LightLevelsRenderer.MIN_RADIUS;
+        private static final int MIN_RADIUS = LightLevelsRenderer.MIN_RADIUS;
 
-        private static final int MAX_RADIUS =
-                LightLevelsRenderer.MAX_RADIUS;
+        private static final int MAX_RADIUS = LightLevelsRenderer.MAX_RADIUS;
 
         public RadiusSlider(
                 int x,
@@ -428,49 +345,26 @@ public class AetherUtilsConfigScreen extends Screen {
             updateMessage();
         }
 
-        private static double radiusToValue(
-                int radius
-        ) {
+        private static double radiusToValue(int radius) {
 
-            return (double) (
-                    radius - MIN_RADIUS
-            ) / (
-                    MAX_RADIUS - MIN_RADIUS
-            );
+            return (double) (radius - MIN_RADIUS) / (MAX_RADIUS - MIN_RADIUS);
         }
 
-        private static int valueToRadius(
-                double value
-        ) {
+        private static int valueToRadius(double value) {
 
-            return MIN_RADIUS
-                    + (int) Math.round(
-                    value * (
-                            MAX_RADIUS - MIN_RADIUS
-                    )
-            );
+            return MIN_RADIUS + (int) Math.round(value * (MAX_RADIUS - MIN_RADIUS));
         }
 
         @Override
         protected void updateMessage() {
 
-            setMessage(
-                    Component.literal(
-                            "Radius: "
-                                    + valueToRadius(
-                                    this.value
-                            )
-                    )
-            );
+            setMessage(Component.literal("Radius: " + valueToRadius(this.value)));
         }
 
         @Override
         protected void applyValue() {
 
-            int radius =
-                    valueToRadius(
-                            this.value
-                    );
+            int radius = valueToRadius(this.value);
 
             LightLevelsConfig.setRadius(radius);
             LightLevelsConfig.save();
@@ -505,52 +399,31 @@ public class AetherUtilsConfigScreen extends Screen {
             updateMessage();
         }
 
-        private static double zoomToValue(
-                double zoom
-        ) {
+        private static double zoomToValue(double zoom) {
 
-            return (
-                    zoom - MIN_ZOOM
-            ) / (
-                    MAX_ZOOM - MIN_ZOOM
-            );
+            return (zoom - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM);
         }
 
-        private static double valueToZoom(
-                double value
-        ) {
+        private static double valueToZoom(double value) {
 
-            return MIN_ZOOM
-                    + value * (
-                    MAX_ZOOM - MIN_ZOOM
-            );
+            return MIN_ZOOM + value * (MAX_ZOOM - MIN_ZOOM);
         }
 
         @Override
         protected void updateMessage() {
 
-            double zoom =
-                    valueToZoom(this.value);
+            double zoom = valueToZoom(this.value);
 
-            setMessage(
-                    Component.literal(
-                            String.format(
-                                    "Zoom: %.1fx",
-                                    zoom
-                            )
-                    )
-            );
+            setMessage(Component.literal(String.format("Zoom: %.1fx", zoom)));
         }
 
         @Override
         protected void applyValue() {
 
-            double zoom =
-                    valueToZoom(this.value);
+            double zoom = valueToZoom(this.value);
 
             ZoomConfig.setZoom(zoom);
             ZoomConfig.save();
-
             updateMessage();
         }
     }

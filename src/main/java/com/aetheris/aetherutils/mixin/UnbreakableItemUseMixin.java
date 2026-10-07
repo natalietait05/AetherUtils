@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemStack.class)
 public abstract class UnbreakableItemUseMixin {
 
+    @Unique
     private boolean aetherutils$isBlocked() {
 
         if (!Unbreakable.isEnabled()) {
@@ -27,7 +29,6 @@ public abstract class UnbreakableItemUseMixin {
 
         ItemStack stack = (ItemStack) (Object) this;
 
-        // Elytra mantiene completamente el comportamiento vanilla.
         if (stack.is(Items.ELYTRA)) {
             return false;
         }
@@ -40,12 +41,7 @@ public abstract class UnbreakableItemUseMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void aetherutils$preventUse(
-            Level level,
-            Player player,
-            InteractionHand hand,
-            CallbackInfoReturnable<InteractionResult> cir
-    ) {
+    private void aetherutils$preventUse(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
 
         if (aetherutils$isBlocked()) {
             cir.setReturnValue(InteractionResult.PASS);
@@ -57,13 +53,7 @@ public abstract class UnbreakableItemUseMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void aetherutils$preventMining(
-            Level level,
-            BlockState state,
-            BlockPos pos,
-            Player player,
-            CallbackInfo ci
-    ) {
+    private void aetherutils$preventMining(Level level, BlockState state, BlockPos pos, Player player, CallbackInfo ci) {
 
         if (aetherutils$isBlocked()) {
             ci.cancel();
@@ -75,11 +65,7 @@ public abstract class UnbreakableItemUseMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void aetherutils$preventAttack(
-            LivingEntity target,
-            LivingEntity attacker,
-            CallbackInfoReturnable<Boolean> cir
-    ) {
+    private void aetherutils$preventAttack(LivingEntity target, LivingEntity attacker, CallbackInfoReturnable<Boolean> cir) {
 
         if (aetherutils$isBlocked()) {
             cir.setReturnValue(false);

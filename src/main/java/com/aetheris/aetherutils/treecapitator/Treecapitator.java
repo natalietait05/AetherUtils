@@ -2,14 +2,13 @@ package com.aetheris.aetherutils.treecapitator;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
-
 
 import java.util.Set;
 
@@ -21,10 +20,6 @@ public final class Treecapitator {
 
     private static int mode = ON;
 
-    /*
-     * Evita que el Treecapitator se ejecute recursivamente
-     * mientras destruye los demás bloques.
-     */
     private static boolean cuttingTree = false;
 
     private Treecapitator() {
@@ -32,24 +27,20 @@ public final class Treecapitator {
 
     public static ItemStack findHoe(Player player) {
 
-        /*
-         * Primero buscamos en la mano secundaria.
-         */
         ItemStack offhand = player.getOffhandItem();
 
-        if (offhand.is(net.minecraft.tags.ItemTags.HOES)) {
+        if (offhand.is(ItemTags.HOES)) {
             return offhand;
         }
 
-        /*
-         * Después buscamos en todo el inventario.
-         */
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+        for (int i = 0;
+             i < player.getInventory().getContainerSize();
+             i++) {
 
             ItemStack stack =
                     player.getInventory().getItem(i);
 
-            if (stack.is(net.minecraft.tags.ItemTags.HOES)) {
+            if (stack.is(ItemTags.HOES)) {
                 return stack;
             }
         }
@@ -57,64 +48,43 @@ public final class Treecapitator {
         return ItemStack.EMPTY;
     }
 
-    public static boolean breakNetherVegetation(
-            Level level,
-            Player player,
-            Set<BlockPos> vegetation
-    ) {
+    public static void breakNetherVegetation(Level level, Player player, Set<BlockPos> vegetation) {
 
         if (vegetation.isEmpty()) {
-            return false;
+            return;
         }
 
-        ItemStack hoe =
-                findHoe(player);
+        ItemStack hoe = findHoe(player);
 
         if (hoe.isEmpty()) {
-            return false;
+            return;
         }
 
         if (!player.isCreative()) {
 
-            int durabilityRemaining =
-                    hoe.getMaxDamage()
-                            - hoe.getDamageValue();
+            int durabilityRemaining = hoe.getMaxDamage() - hoe.getDamageValue();
 
             if (durabilityRemaining < vegetation.size()) {
-                return false;
+                return;
             }
         }
 
         for (BlockPos pos : vegetation) {
 
-            BlockState state =
-                    level.getBlockState(pos);
+            BlockState state = level.getBlockState(pos);
 
-            if (!state.is(Blocks.SHROOMLIGHT)
-                    && !state.is(Blocks.NETHER_WART_BLOCK)
-                    && !state.is(Blocks.WARPED_WART_BLOCK)) {
-
+            if (!state.is(Blocks.SHROOMLIGHT) && !state.is(Blocks.NETHER_WART_BLOCK) && !state.is(Blocks.WARPED_WART_BLOCK)) {
                 continue;
             }
 
-            boolean destroyed =
-                    level.destroyBlock(
-                            pos,
-                            true,
-                            player
-                    );
+            boolean destroyed = level.destroyBlock(pos, true, player);
 
             if (destroyed && !player.isCreative()) {
 
-                hoe.hurtAndBreak(
-                        1,
-                        player,
-                        player.getUsedItemHand()
-                );
+                hoe.hurtAndBreak(1, player, player.getUsedItemHand());
             }
         }
 
-        return true;
     }
 
     public static int getMode() {
@@ -142,9 +112,7 @@ public final class Treecapitator {
         return cuttingTree;
     }
 
-    /*
-     * Compatibilidad con el sistema anterior.
-     */
+
     public static void toggle() {
 
         if (mode == OFF) {
@@ -158,228 +126,152 @@ public final class Treecapitator {
         return tool.is(ItemTags.AXES);
     }
 
-    /**
-     * Detecta un árbol válido.
-     */
-    public static Set<BlockPos> detectTree(
-            Level level,
-            BlockPos origin
-    ) {
+    public static Set<BlockPos> detectTree(Level level, BlockPos origin) {
 
-        BlockState originState =
-                level.getBlockState(origin);
+        BlockState originState = level.getBlockState(origin);
 
         if (!TreeDetector.isTreeTrunk(originState)) {
             return Set.of();
         }
 
-        Set<BlockPos> logs =
-                TreeDetector.findConnectedLogs(
-                        level,
-                        origin
-                );
+        Set<BlockPos> logs = TreeDetector.findConnectedLogs(level, origin);
 
         if (logs.isEmpty()) {
             return Set.of();
         }
 
-        /*
-         * Árbol del Nether.
-         */
-        if (TreeDetector.isCrimsonStem(originState)
-                || TreeDetector.isWarpedStem(originState)) {
+        if (TreeDetector.isCrimsonStem(originState) || TreeDetector.isWarpedStem(originState)) {
 
-            if (!TreeDetector.hasNetherGround(
-                    level,
-                    logs
-            )) {
+            if (!TreeDetector.hasNetherGround(level, logs)) {
                 return Set.of();
             }
 
             return logs;
         }
 
-        /*
-         * Árbol del Overworld.
-         */
-        if (!TreeDetector.hasNearbyLeaves(
-                level,
-                logs
-        )) {
+        if (!TreeDetector.hasNearbyLeaves(level, logs)) {
             return Set.of();
         }
 
         return logs;
     }
 
-    /**
-     * Treecapitator normal.
-     *
-     * Rompe todos los troncos conectados.
-     */
-    public static boolean cutTree(
-            Level level,
-            Player player,
-            BlockPos origin,
-            Set<BlockPos> logs
-    ) {
+    public static void cutTree(Level level, Player player, BlockPos origin, Set<BlockPos> logs) {
 
         if (cuttingTree) {
-            return false;
+            return;
         }
 
         if (logs.isEmpty()) {
-            return false;
+            return;
         }
 
-        ItemStack tool =
-                player.getMainHandItem();
+        ItemStack tool = player.getMainHandItem();
 
         if (!canUse(tool)) {
-            return false;
+            return;
         }
 
-        /*
-         * Comprobación de durabilidad.
-         */
         if (!player.isCreative()) {
 
-            int durabilityRemaining =
-                    tool.getMaxDamage()
-                            - tool.getDamageValue();
+            int durabilityRemaining = tool.getMaxDamage() - tool.getDamageValue();
 
             if (durabilityRemaining < logs.size()) {
-                return false;
+                return;
             }
         }
 
         cuttingTree = true;
 
         try {
-            boolean netherTree =
-                    TreeDetector.isCrimsonStem(
-                            level.getBlockState(origin)
-                    )
-                            || TreeDetector.isWarpedStem(
-                            level.getBlockState(origin)
-                    );
+
+            boolean netherTree = TreeDetector.isCrimsonStem(level.getBlockState(origin)) || TreeDetector.isWarpedStem(level.getBlockState(origin));
 
             if (netherTree) {
 
-                boolean crimson =
-                        TreeDetector.isCrimsonStem(
-                                level.getBlockState(origin)
-                        );
+                boolean crimson = TreeDetector.isCrimsonStem(level.getBlockState(origin));
 
-                Set<BlockPos> vegetation =
-                        TreeDetector.findNetherVegetation(
-                                level,
-                                logs,
-                                crimson
-                        );
+                Set<BlockPos> vegetation = TreeDetector.findNetherVegetation(level, logs, crimson);
 
-                breakNetherVegetation(
-                        level,
-                        player,
-                        vegetation
-                );
+                breakNetherVegetation(level, player, vegetation);
             }
+
             for (BlockPos log : logs) {
 
-                /*
-                 * El bloque original lo rompe Minecraft
-                 * mediante el clic del jugador.
-                 */
                 if (log.equals(origin)) {
                     continue;
                 }
 
-                BlockState state =
-                        level.getBlockState(log);
+                BlockState state = level.getBlockState(log);
 
                 if (!TreeDetector.isTreeTrunk(state)) {
                     continue;
                 }
 
-                boolean destroyed =
-                        level.destroyBlock(
-                                log,
-                                true,
-                                player
-                        );
+                boolean destroyed = level.destroyBlock(log, true, player);
 
                 if (destroyed && !player.isCreative()) {
 
-                    tool.hurtAndBreak(
-                            1,
-                            player,
-                            player.getUsedItemHand()
-                    );
+                    tool.hurtAndBreak(1, player, player.getUsedItemHand());
                 }
             }
 
-            return true;
-
         } finally {
+
             cuttingTree = false;
         }
     }
 
-    /**
-     * STRIP:
-     *
-     * 1. Convierte todos los troncos/stems.
-     * 2. Después los rompe.
-     */
-    public static boolean stripAndCutTree(
-            Level level,
-            Player player,
-            BlockPos origin,
-            Set<BlockPos> logs
-    ) {
+    public static void stripTree(Level level, Player player, BlockPos origin, Set<BlockPos> logs) {
 
-        if (cuttingTree) return false;
-        if (logs.isEmpty()) return false;
+        if (cuttingTree) {
+            return;
+        }
+
+        if (logs.isEmpty()) {
+            return;
+        }
 
         ItemStack tool = player.getMainHandItem();
 
         if (!canUse(tool)) {
-            return false;
+            return;
         }
 
         int blocksToStrip = 0;
 
         for (BlockPos log : logs) {
 
-            BlockState state =
-                    level.getBlockState(log);
+            BlockState state = level.getBlockState(log);
 
             if (!TreeDetector.isTreeTrunk(state)) {
                 continue;
             }
 
-            if (!TreeDetector.isStrippedStem(state)
-                    && getStrippedState(state) != null) {
-
+            if (!TreeDetector.isStrippedStem(state) && getStrippedState(state) != null) {
                 blocksToStrip++;
             }
         }
 
+        boolean netherTree = TreeDetector.isCrimsonStem(level.getBlockState(origin)) || TreeDetector.isWarpedStem(level.getBlockState(origin));
+
+        Set<BlockPos> vegetation = Set.of();
+
+        if (netherTree) {
+
+            boolean crimson = TreeDetector.isCrimsonStem(level.getBlockState(origin));
+
+            vegetation = TreeDetector.findNetherVegetation(level, logs, crimson);
+        }
+
+        int requiredUses = blocksToStrip + vegetation.size();
+
         if (!player.isCreative()) {
 
-            /*
-             * Los bloques que ya estaban stripped solamente
-             * necesitan ser destruidos.
-             */
-            int requiredUses =
-                    blocksToStrip + logs.size();
-
-            int durabilityRemaining =
-                    tool.getMaxDamage()
-                            - tool.getDamageValue();
+            int durabilityRemaining = tool.getMaxDamage() - tool.getDamageValue();
 
             if (durabilityRemaining < requiredUses) {
-                return false;
+                return;
             }
         }
 
@@ -387,167 +279,94 @@ public final class Treecapitator {
 
         try {
 
-            /*
-             * PRIMERA FASE:
-             * quitar la corteza.
-             */
             for (BlockPos log : logs) {
 
-                BlockState state =
-                        level.getBlockState(log);
+                BlockState state = level.getBlockState(log);
 
                 if (!TreeDetector.isTreeTrunk(state)) {
                     continue;
                 }
 
-                /*
-                 * Si ya estaba stripped, no hacemos nada.
-                 */
                 if (TreeDetector.isStrippedStem(state)) {
                     continue;
                 }
 
-                BlockState stripped =
-                        getStrippedState(state);
+                BlockState stripped = getStrippedState(state);
 
                 if (stripped == null) {
                     continue;
                 }
 
-                level.setBlock(
-                        log,
-                        stripped,
-                        3
-                );
+                level.setBlock(log, stripped, 3);
 
                 if (!player.isCreative()) {
 
-                    tool.hurtAndBreak(
-                            1,
-                            player,
-                            player.getUsedItemHand()
-                    );
-                }
-            }
-            //segunda fase
-            boolean netherTree =
-                    TreeDetector.isCrimsonStem(
-                            level.getBlockState(origin)
-                    )
-                            || TreeDetector.isWarpedStem(
-                            level.getBlockState(origin)
-                    );
-
-            if (netherTree) {
-
-                boolean crimson =
-                        TreeDetector.isCrimsonStem(
-                                level.getBlockState(origin)
-                        );
-
-                Set<BlockPos> vegetation =
-                        TreeDetector.findNetherVegetation(
-                                level,
-                                logs,
-                                crimson
-                        );
-
-                breakNetherVegetation(
-                        level,
-                        player,
-                        vegetation
-                );
-            }
-            /*
-             * TERCERA FASE:
-             * romper todos los troncos.
-             */
-            for (BlockPos log : logs) {
-
-                BlockState state =
-                        level.getBlockState(log);
-
-                if (!TreeDetector.isTreeTrunk(state)) {
-                    continue;
-                }
-
-                boolean destroyed =
-                        level.destroyBlock(
-                                log,
-                                true,
-                                player
-                        );
-
-                if (destroyed && !player.isCreative()) {
-
-                    tool.hurtAndBreak(
-                            1,
-                            player,
-                            player.getUsedItemHand()
-                    );
+                    tool.hurtAndBreak(1, player, player.getUsedItemHand());
                 }
             }
 
-            return true;
+            if (netherTree && !vegetation.isEmpty()) {
+
+                breakNetherVegetation(level, player, vegetation);
+            }
 
         } finally {
+
             cuttingTree = false;
         }
     }
 
-    /**
-     * Obtiene la variante stripped del bloque.
-     *
-     * No utilizamos ResourceLocation para evitar
-     * problemas de mappings.
-     */
-    private static BlockState getStrippedState(
-            BlockState state
-    ) {
+    private static BlockState getStrippedState(BlockState state) {
 
         var block = state.getBlock();
 
-        var strippedBlock =
-                (net.minecraft.world.level.block.Block) null;
+        var strippedBlock = (net.minecraft.world.level.block.Block) null;
 
         if (block == Blocks.OAK_LOG) {
+
             strippedBlock = Blocks.STRIPPED_OAK_LOG;
 
         } else if (block == Blocks.SPRUCE_LOG) {
+
             strippedBlock = Blocks.STRIPPED_SPRUCE_LOG;
 
         } else if (block == Blocks.BIRCH_LOG) {
+
             strippedBlock = Blocks.STRIPPED_BIRCH_LOG;
 
         } else if (block == Blocks.JUNGLE_LOG) {
+
             strippedBlock = Blocks.STRIPPED_JUNGLE_LOG;
 
         } else if (block == Blocks.ACACIA_LOG) {
+
             strippedBlock = Blocks.STRIPPED_ACACIA_LOG;
 
         } else if (block == Blocks.DARK_OAK_LOG) {
+
             strippedBlock = Blocks.STRIPPED_DARK_OAK_LOG;
 
         } else if (block == Blocks.MANGROVE_LOG) {
+
             strippedBlock = Blocks.STRIPPED_MANGROVE_LOG;
 
         } else if (block == Blocks.CHERRY_LOG) {
+
             strippedBlock = Blocks.STRIPPED_CHERRY_LOG;
 
         } else if (block == Blocks.PALE_OAK_LOG) {
+
             strippedBlock = Blocks.STRIPPED_PALE_OAK_LOG;
 
         } else if (block == Blocks.CRIMSON_STEM) {
+
             strippedBlock = Blocks.STRIPPED_CRIMSON_STEM;
 
         } else if (block == Blocks.WARPED_STEM) {
+
             strippedBlock = Blocks.STRIPPED_WARPED_STEM;
         }
 
-        /*
-         * Si ya está stripped, devolvemos su propio estado.
-         * Esto permite que STRIP pueda romperlo después.
-         */
         if (block == Blocks.STRIPPED_OAK_LOG
                 || block == Blocks.STRIPPED_SPRUCE_LOG
                 || block == Blocks.STRIPPED_BIRCH_LOG
@@ -567,24 +386,13 @@ public final class Treecapitator {
             return null;
         }
 
-        BlockState strippedState =
-                strippedBlock.defaultBlockState();
+        BlockState strippedState = strippedBlock.defaultBlockState();
 
-        if (state.hasProperty(RotatedPillarBlock.AXIS)
-                && strippedState.hasProperty(
-                RotatedPillarBlock.AXIS
-        )) {
+        if (state.hasProperty(RotatedPillarBlock.AXIS) && strippedState.hasProperty(RotatedPillarBlock.AXIS)) {
 
-            Direction.Axis axis =
-                    state.getValue(
-                            RotatedPillarBlock.AXIS
-                    );
+            Direction.Axis axis = state.getValue(RotatedPillarBlock.AXIS);
 
-            strippedState =
-                    strippedState.setValue(
-                            RotatedPillarBlock.AXIS,
-                            axis
-                    );
+            strippedState = strippedState.setValue(RotatedPillarBlock.AXIS, axis);
         }
 
         return strippedState;

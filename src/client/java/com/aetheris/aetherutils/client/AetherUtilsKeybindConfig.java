@@ -37,39 +37,21 @@ public final class AetherUtilsKeybindConfig {
 
             properties.load(input);
 
-            loadKey(
-                    properties,
-                    TREECAPITATOR_KEY,
-                    TreecapitatorClient.TOGGLE_KEY
-            );
+            loadKey(properties, TREECAPITATOR_KEY, TreecapitatorClient.TOGGLE_KEY);
 
-            loadKey(
-                    properties,
-                    LIGHT_LEVELS_KEY,
-                    LightLevelsClient.TOGGLE_KEY
-            );
+            loadKey(properties, LIGHT_LEVELS_KEY, LightLevelsClient.TOGGLE_KEY);
 
-            loadKey(
-                    properties,
-                    ZOOM_KEY,
-                    ZoomClient.ZOOM_KEY
-            );
+            loadKey(properties, ZOOM_KEY, ZoomClient.ZOOM_KEY);
 
         } catch (IOException e) {
 
-            System.err.println(
-                    "Could not load AetherUtils keybind configuration"
-            );
+            System.err.println("Could not load AetherUtils keybind configuration");
 
             e.printStackTrace();
         }
     }
 
-    private static void loadKey(
-            Properties properties,
-            String property,
-            KeyMapping keyMapping
-    ) {
+    private static void loadKey(Properties properties, String property, KeyMapping keyMapping) {
 
         if (keyMapping == null) {
             return;
@@ -83,49 +65,35 @@ public final class AetherUtilsKeybindConfig {
 
         try {
 
-            InputConstants.Key key =
-                    InputConstants.getKey(value);
+            InputConstants.Key key = InputConstants.getKey(value);
 
-            if (key != null) {
-                keyMapping.setKey(key);
-            }
+            keyMapping.setKey(key);
 
         } catch (Exception e) {
 
-            System.err.println(
-                    "Could not load keybind: " + property
-            );
+            System.err.println("Could not load keybind: " + property);
         }
     }
 
-    public static void setTreecapitatorKey(
-            InputConstants.Key key
-    ) {
+    public static void setTreecapitatorKey(InputConstants.Key key) {
 
-        if (TreecapitatorClient.TOGGLE_KEY != null
-                && key != null) {
+        if (TreecapitatorClient.TOGGLE_KEY != null && key != null) {
 
             TreecapitatorClient.TOGGLE_KEY.setKey(key);
         }
     }
 
-    public static void setLightLevelsKey(
-            InputConstants.Key key
-    ) {
+    public static void setLightLevelsKey(InputConstants.Key key) {
 
-        if (LightLevelsClient.TOGGLE_KEY != null
-                && key != null) {
+        if (LightLevelsClient.TOGGLE_KEY != null && key != null) {
 
             LightLevelsClient.TOGGLE_KEY.setKey(key);
         }
     }
 
-    public static void setZoomKey(
-            InputConstants.Key key
-    ) {
+    public static void setZoomKey(InputConstants.Key key) {
 
-        if (ZoomClient.ZOOM_KEY != null
-                && key != null) {
+        if (ZoomClient.ZOOM_KEY != null && key != null) {
 
             ZoomClient.ZOOM_KEY.setKey(key);
         }
@@ -137,69 +105,40 @@ public final class AetherUtilsKeybindConfig {
 
         Properties properties = new Properties();
 
-        saveKey(
-                properties,
-                TREECAPITATOR_KEY,
-                TreecapitatorClient.TOGGLE_KEY
-        );
+        saveKey(properties, TREECAPITATOR_KEY, TreecapitatorClient.TOGGLE_KEY);
 
-        saveKey(
-                properties,
-                LIGHT_LEVELS_KEY,
-                LightLevelsClient.TOGGLE_KEY
-        );
+        saveKey(properties, LIGHT_LEVELS_KEY, LightLevelsClient.TOGGLE_KEY);
 
-        saveKey(
-                properties,
-                ZOOM_KEY,
-                ZoomClient.ZOOM_KEY
-        );
+        saveKey(properties, ZOOM_KEY, ZoomClient.ZOOM_KEY);
 
         try {
 
             Files.createDirectories(path.getParent());
 
-            try (OutputStream output =
-                         Files.newOutputStream(path)) {
+            try (OutputStream output = Files.newOutputStream(path)) {
 
-                properties.store(
-                        output,
-                        "AetherUtils Keybind configuration"
-                );
+                properties.store(output, "AetherUtils Keybind configuration");
             }
 
         } catch (IOException e) {
 
-            System.err.println(
-                    "Could not save AetherUtils keybind configuration"
-            );
+            System.err.println("Could not save AetherUtils keybind configuration");
 
             e.printStackTrace();
         }
     }
 
-    private static void saveKey(
-            Properties properties,
-            String property,
-            KeyMapping keyMapping
-    ) {
+    private static void saveKey(Properties properties, String property, KeyMapping keyMapping) {
 
         if (keyMapping == null) {
             return;
         }
 
-        properties.setProperty(
-                property,
-                keyMapping.saveString()
-        );
+        properties.setProperty(property, keyMapping.saveString());
     }
 
     private static Path getConfigPath() {
 
-        return FabricLoader.getInstance()
-                .getConfigDir()
-                .resolve(
-                        "aetherutils-keybinds.properties"
-                );
+        return FabricLoader.getInstance().getConfigDir().resolve("aetherutils-keybinds.properties");
     }
 }

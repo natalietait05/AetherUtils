@@ -1,10 +1,11 @@
 package com.aetheris.aetherutils.treecapitator;
 
 import com.aetheris.aetherutils.client.AetherUtilsClient;
+import com.aetheris.aetherutils.client.AetherUtilsToast;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.network.chat.Component;
+
 
 public final class TreecapitatorClient {
 
@@ -29,28 +30,18 @@ public final class TreecapitatorClient {
                 if (client.player == null) {
                     return;
                 }
-
                 Treecapitator.cycleMode();
-
-                String status;
-
+                String message;
                 switch (Treecapitator.getMode()) {
 
                     case Treecapitator.ON ->
-                            status = "ON";
-
+                            message = "Treecapitator: ON";
                     case Treecapitator.STRIP ->
-                            status = "STRIP";
-
+                            message = "Treecapitator: STRIP";
                     default ->
-                            status = "OFF";
+                            message = "Treecapitator: OFF";
                 }
-
-                client.player.sendSystemMessage(
-                        Component.literal(
-                                "Tree: " + status
-                        )
-                );
+                AetherUtilsToast.show(message);
             }
         });
     }

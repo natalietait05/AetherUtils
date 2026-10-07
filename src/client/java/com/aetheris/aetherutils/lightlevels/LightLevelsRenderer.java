@@ -36,9 +36,12 @@ public final class LightLevelsRenderer {
     }
 
     public static void setRadius(int newRadius) {
+
         radius = Math.clamp(newRadius, MIN_RADIUS, MAX_RADIUS);
     }
+
     public static void initialize() {
+
         LevelRenderEvents.COLLECT_SUBMITS.register(LightLevelsRenderer::render);
     }
 
@@ -57,17 +60,14 @@ public final class LightLevelsRenderer {
             return;
         }
 
-        LightLayer lightLayer =
-                mode == LightLevelsClient.BLOCK_LIGHT
-                        ? LightLayer.BLOCK
-                        : LightLayer.SKY;
+        LightLayer lightLayer = mode == LightLevelsClient.BLOCK_LIGHT ? LightLayer.BLOCK : LightLayer.SKY;
 
         Vec3 cameraPos = player.getEyePosition();
 
         List<LightEntry> found = new ArrayList<>();
 
-        int radiusSquared =
-                radius * radius;
+        int radiusSquared = radius * radius;
+
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
@@ -91,11 +91,16 @@ public final class LightLevelsRenderer {
                     BlockPos lightPos = pos.above();
                     BlockState aboveState = level.getBlockState(lightPos);
 
+                    if (aboveState.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+                        continue;
+                    }
+
                     if (!aboveState.getCollisionShape(level, lightPos).isEmpty()) {
                         continue;
                     }
 
                     int lightLevel = level.getBrightness(lightLayer, lightPos);
+
                     if (mode == LightLevelsClient.BLOCK_LIGHT && lightLevel > 0){
                         continue;
                     }
@@ -104,14 +109,10 @@ public final class LightLevelsRenderer {
                         continue;
                     }
 
-                    found.add(new LightEntry(
-                            pos.immutable(),
-                            lightLevel
-                    ));
+                    found.add(new LightEntry(pos.immutable(), lightLevel));
                 }
             }
         }
-
         lightEntries = List.copyOf(found);
     }
 
@@ -122,10 +123,6 @@ public final class LightLevelsRenderer {
         }
 
         if (state.is(BlockTags.LEAVES)) {
-            return false;
-        }
-
-        if (!state.isSolid()) {
             return false;
         }
 
@@ -221,9 +218,7 @@ public final class LightLevelsRenderer {
 
         Font font = minecraft.font;
 
-        Vec3 camera = context.levelState()
-                .cameraRenderState
-                .pos;
+        Vec3 camera = context.levelState().cameraRenderState.pos;
 
         SubmitNodeCollector queue = context.submitNodeCollector();
 
@@ -234,8 +229,13 @@ public final class LightLevelsRenderer {
             BlockPos pos = entry.pos();
 
             poseStack.pushPose();
+
             // TEXT POSITION
-            poseStack.translate(pos.getX() + 0.5 - camera.x, pos.getY() + 1.01 - camera.y, pos.getZ() + 0.5 - camera.z);
+            poseStack.translate(
+                    pos.getX() + 0.5 - camera.x,
+                    pos.getY() + 1.01 - camera.y,
+                    pos.getZ() + 0.5 - camera.z
+            );
 
             // TEXT ROTATION
             poseStack.rotate(Axis.XP.rotationDegrees(90));
@@ -247,21 +247,27 @@ public final class LightLevelsRenderer {
                     1.0f / 18.0f
             );
 
-            var text = net.minecraft.network.chat.Component
-                    .literal(Integer.toString(entry.light()))
-                    .getVisualOrderText();
+            String lightText = entry.light() == 0
+                            ? "/"
+                            : Integer.toString(entry.light());
+
+            var text = net.minecraft.network.chat.Component.literal(lightText).getVisualOrderText();
 
             float width = font.width(text);
 
-            queue.submitText(poseStack,
+            queue.submitText(
+                    poseStack,
                     -width / 2.0f,
                     -4.0f,
-                    text, true, Font.DisplayMode.SEE_THROUGH,
+                    text,
+                    true,
+                    Font.DisplayMode.NORMAL,
                     0xF000F0,
                     0xFFFFFFFF,
                     0,
                     0
             );
+
             poseStack.popPose();
         }
     }

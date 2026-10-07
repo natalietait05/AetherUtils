@@ -17,10 +17,7 @@ public abstract class UnbreakableMiningMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void aetherutils$preventMining(
-            BlockState state,
-            CallbackInfoReturnable<Float> cir
-    ) {
+    private void aetherutils$preventMining(BlockState state, CallbackInfoReturnable<Float> cir) {
 
         if (!Unbreakable.isEnabled()) {
             return;
@@ -28,7 +25,6 @@ public abstract class UnbreakableMiningMixin {
 
         ItemStack stack = (ItemStack) (Object) this;
 
-        // Elytra mantiene completamente el comportamiento vanilla.
         if (stack.is(Items.ELYTRA)) {
             return;
         }
@@ -41,7 +37,6 @@ public abstract class UnbreakableMiningMixin {
             return;
         }
 
-        // Herramienta agotada: no puede minar.
         cir.setReturnValue(0.0F);
     }
 }

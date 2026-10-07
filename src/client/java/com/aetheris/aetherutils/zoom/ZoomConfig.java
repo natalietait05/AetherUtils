@@ -12,10 +12,8 @@ import java.util.Properties;
 public final class ZoomConfig {
 
     private static final double DEFAULT_ZOOM = 3.0;
-    private static final boolean DEFAULT_SMOOTH = true;
 
     private static double zoom = DEFAULT_ZOOM;
-    private static boolean smooth = DEFAULT_SMOOTH;
 
     private ZoomConfig() {
     }
@@ -28,20 +26,11 @@ public final class ZoomConfig {
         zoom = Math.clamp(value, 2.0, 6.0);
     }
 
-    public static boolean isSmooth() {
-        return smooth;
-    }
-
-    public static void setSmooth(boolean value) {
-        smooth = value;
-    }
-
     public static void load() {
         Path configPath = getConfigPath();
 
         if (!Files.exists(configPath)) {
             zoom = DEFAULT_ZOOM;
-            smooth = DEFAULT_SMOOTH;
             return;
         }
 
@@ -50,27 +39,10 @@ public final class ZoomConfig {
         try (InputStream input = Files.newInputStream(configPath)) {
             properties.load(input);
 
-            setZoom(
-                    Double.parseDouble(
-                            properties.getProperty(
-                                    "com/aetheris/aetherutils/zoom",
-                                    Double.toString(DEFAULT_ZOOM)
-                            )
-                    )
-            );
-
-            setSmooth(
-                    Boolean.parseBoolean(
-                            properties.getProperty(
-                                    "smooth",
-                                    Boolean.toString(DEFAULT_SMOOTH)
-                            )
-                    )
-            );
+            setZoom(Double.parseDouble(properties.getProperty("com/aetheris/aetherutils/zoom", Double.toString(DEFAULT_ZOOM))));
 
         } catch (IOException | NumberFormatException e) {
             zoom = DEFAULT_ZOOM;
-            smooth = DEFAULT_SMOOTH;
         }
     }
 
@@ -79,38 +51,23 @@ public final class ZoomConfig {
 
         Properties properties = new Properties();
 
-        properties.setProperty(
-                "com/aetheris/aetherutils/zoom",
-                Double.toString(zoom)
-        );
-
-        properties.setProperty(
-                "smooth",
-                Boolean.toString(smooth)
-        );
+        properties.setProperty("com/aetheris/aetherutils/zoom", Double.toString(zoom));
 
         try {
             Files.createDirectories(configPath.getParent());
 
             try (OutputStream output = Files.newOutputStream(configPath)) {
-                properties.store(
-                        output,
-                        "AetherUtils Zoom configuration"
-                );
+                properties.store(output, "AetherUtils Zoom configuration");
             }
 
         } catch (IOException e) {
-            System.err.println(
-                    "Could not save AetherUtils Zoom configuration"
-            );
+            System.err.println("Could not save AetherUtils Zoom configuration");
 
             e.printStackTrace();
         }
     }
 
     private static Path getConfigPath() {
-        return FabricLoader.getInstance()
-                .getConfigDir()
-                .resolve("aetherutils-zoom.properties");
+        return FabricLoader.getInstance().getConfigDir().resolve("aetherutils-zoom.properties");
     }
 }

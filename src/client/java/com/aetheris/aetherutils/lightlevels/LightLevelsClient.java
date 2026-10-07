@@ -1,10 +1,10 @@
 package com.aetheris.aetherutils.lightlevels;
 
 import com.aetheris.aetherutils.client.AetherUtilsClient;
+import com.aetheris.aetherutils.client.AetherUtilsToast;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.network.chat.Component;
 
 public final class LightLevelsClient {
 
@@ -47,30 +47,19 @@ public final class LightLevelsClient {
                 if (client.player == null) {
                     continue;
                 }
-
                 String message;
-
                 switch (state) {
-
                     case BLOCK_LIGHT ->
-                            message =
-                                    "Light Levels: BLOCK LIGHT";
-
+                            message = "Light Levels: BLOCK LIGHT";
                     case SKY_LIGHT ->
-                            message =
-                                    "Light Levels: SKY LIGHT";
-
+                            message = "Light Levels: SKY LIGHT";
                     default ->
-                            message =
-                                    "Light Levels: OFF";
+                            message = "Light Levels: OFF";
                 }
 
-                client.player.sendSystemMessage(
-                        Component.literal(message)
-                );
+                AetherUtilsToast.show(message);
 
-                if (client.level != null
-                        && state != OFF) {
+                if (client.level != null && state != OFF) {
 
                     LightLevelsRenderer.update(
                             client.level,
@@ -88,9 +77,7 @@ public final class LightLevelsClient {
                 }
             }
 
-            if (state != OFF
-                    && client.player != null
-                    && client.level != null) {
+            if (state != OFF && client.player != null && client.level != null) {
 
                 refreshCounter[0]++;
 
@@ -98,11 +85,7 @@ public final class LightLevelsClient {
 
                     refreshCounter[0] = 0;
 
-                    LightLevelsRenderer.update(
-                            client.level,
-                            client.player.blockPosition(),
-                            state
-                    );
+                    LightLevelsRenderer.update(client.level, client.player.blockPosition(), state);
                 }
             }
         });

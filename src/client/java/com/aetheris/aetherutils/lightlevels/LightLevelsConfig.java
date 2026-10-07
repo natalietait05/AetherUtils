@@ -42,8 +42,7 @@ public final class LightLevelsConfig {
 
             properties.load(input);
 
-            int loadedRadius =
-                    Integer.parseInt(properties.getProperty("radius", Integer.toString(DEFAULT_RADIUS)));
+            int loadedRadius = Integer.parseInt(properties.getProperty("radius", Integer.toString(DEFAULT_RADIUS)));
 
             setRadius(loadedRadius);
 

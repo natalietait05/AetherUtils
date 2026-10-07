@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 public class AetherUtilsKeybindScreen extends Screen {
 
@@ -18,11 +19,7 @@ public class AetherUtilsKeybindScreen extends Screen {
 
     private boolean waitingForKey = false;
 
-    public AetherUtilsKeybindScreen(
-            Screen parent,
-            Component title,
-            KeyMapping keyMapping
-    ) {
+    public AetherUtilsKeybindScreen(Screen parent, Component title, KeyMapping keyMapping) {
         super(title);
 
         this.parent = parent;
@@ -66,13 +63,11 @@ public class AetherUtilsKeybindScreen extends Screen {
     }
 
     private Component getKeyText() {
-        return Component.literal(
-                "Key: " + keyMapping.getTranslatedKeyMessage().getString()
-        );
+        return Component.literal("Key: " + keyMapping.getTranslatedKeyMessage().getString());
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
+    public boolean keyPressed(@NonNull KeyEvent event) {
 
         if (waitingForKey) {
 
@@ -94,7 +89,7 @@ public class AetherUtilsKeybindScreen extends Screen {
 
     @Override
     public void extractRenderState(
-            GuiGraphicsExtractor graphics,
+            @NonNull GuiGraphicsExtractor graphics,
             int mouseX,
             int mouseY,
             float delta
@@ -118,8 +113,6 @@ public class AetherUtilsKeybindScreen extends Screen {
     @Override
     public void onClose() {
 
-        if (this.minecraft != null) {
-            this.minecraft.gui.setScreen(parent);
-        }
+        this.minecraft.gui.setScreen(parent);
     }
 }

@@ -41,12 +41,7 @@ public final class UnbreakableConfig {
 
             properties.load(input);
 
-            enabled = Boolean.parseBoolean(
-                    properties.getProperty(
-                            "enabled",
-                            Boolean.toString(DEFAULT_ENABLED)
-                    )
-            );
+            enabled = Boolean.parseBoolean(properties.getProperty("enabled", Boolean.toString(DEFAULT_ENABLED)));
 
         } catch (IOException e) {
 
@@ -60,10 +55,7 @@ public final class UnbreakableConfig {
 
         Properties properties = new Properties();
 
-        properties.setProperty(
-                "enabled",
-                Boolean.toString(enabled)
-        );
+        properties.setProperty("enabled", Boolean.toString(enabled));
 
         try {
 
@@ -71,10 +63,7 @@ public final class UnbreakableConfig {
 
             try (OutputStream output = Files.newOutputStream(configPath)) {
 
-                properties.store(
-                        output,
-                        "AetherUtils Unbreakable configuration"
-                );
+                properties.store(output, "AetherUtils Unbreakable configuration");
             }
 
         } catch (IOException e) {
@@ -89,8 +78,6 @@ public final class UnbreakableConfig {
 
     private static Path getConfigPath() {
 
-        return FabricLoader.getInstance()
-                .getConfigDir()
-                .resolve("aetherutils-unbreakable.properties");
+        return FabricLoader.getInstance().getConfigDir().resolve("aetherutils-unbreakable.properties");
     }
 }

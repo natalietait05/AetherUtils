@@ -3,7 +3,10 @@
   "package": "com.aetheris.aetherutils.client.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "ZoomCameraMixin"
+    "InventorySorterScreenMixin",
+    "ScreenAccessor",
+    "ZoomCameraMixin",
+    "HudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

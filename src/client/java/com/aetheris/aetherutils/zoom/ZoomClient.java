@@ -25,7 +25,6 @@ public final class ZoomClient {
 
     public static boolean isZooming() {
 
-        return ZOOM_KEY != null
-                && ZOOM_KEY.isDown();
+        return ZOOM_KEY != null && ZOOM_KEY.isDown();
     }
 }

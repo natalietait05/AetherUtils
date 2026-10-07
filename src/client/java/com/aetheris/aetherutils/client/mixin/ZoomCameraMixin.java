@@ -16,18 +16,13 @@ public abstract class ZoomCameraMixin {
             at = @At("RETURN"),
             cancellable = true
     )
-    private void aetherutils$applyZoom(
-            float partialTicks,
-            CallbackInfoReturnable<Float> cir
-    ) {
+    private void aetherutils$applyZoom(float partialTicks, CallbackInfoReturnable<Float> cir) {
         if (!ZoomClient.isZooming()) {
             return;
         }
 
         float fov = cir.getReturnValue();
 
-        cir.setReturnValue(
-                (float) (fov / ZoomConfig.getZoom())
-        );
+        cir.setReturnValue((float) (fov / ZoomConfig.getZoom()));
     }
 }
